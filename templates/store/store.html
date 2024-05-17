@@ -4,7 +4,11 @@
 <!-- ========================= SECTION PAGETOP ========================= -->
 <section class="section-pagetop bg">
     <div class="container">
-        <h2 class="title-page">Our Store</h2>
+        {% if 'search' in request.path %}
+            <h2 class="title-page">Search Results</h2>
+        {% else %}
+            <h2 class="title-page">Our Store</h2>
+        {% endif %}
         
     </div> <!-- container //  -->
     </section>
@@ -31,7 +35,7 @@
                     <ul class="list-menu">
                         <li><a href="{% url 'store' %}">All Products</a></li>
                         {% for category in allcategories %}
-                        <li><a href="{% url 'store' %}{{category.slug}}">{{category.category_name}}</a></li>
+                        <li><a href="{% url 'store' %}category/{{category.slug}}">{{category.category_name}}</a></li>
                         {% endfor %}
                         
                     </ul>
@@ -126,57 +130,57 @@
     </header><!-- sect-heading -->
     
     <div class="row">
-        {% comment %} <div class="col-md-4">
-            <figure class="card card-product-grid">
-                <div class="img-wrap"> 
-                    
-                    <img src="{% static 'images/items/1.jpg' %}">
-                    
-                </div> <!-- img-wrap.// -->
-                <figcaption class="info-wrap">
-                    <div class="fix-height">
-                        <a href="./product-detail.html" class="title">Great item name goes here</a>
-                        <div class="price-wrap mt-2">
-                            <span class="price">$1280</span>
-                            <del class="price-old">$1980</del>
-                        </div> <!-- price-wrap.// -->
-                    </div>
-                    <a href="#" class="btn btn-block btn-success">Added to cart </a>
-                </figcaption>
-            </figure>
-        </div> <!-- col.// --> {% endcomment %}
-    
+        {% if allproducts %}
         {% for product in allproducts %}
         <div class="col-md-4">
             <figure class="card card-product-grid">
                 <div class="img-wrap" style="margin-top: 10px;"> 
-                    <a href="{% url 'store' %}{{product.category.slug}}/{{product.slug}}"><img src="{{product.image.url}}"></a>
+                    <a href="{% url 'store' %}category/{{product.category.slug}}/{{product.slug}}"><img src="{{product.image.url}}"></a>
                     
                 </div> <!-- img-wrap.// -->
                 <figcaption class="info-wrap">
                     <div class="fix-height">
-                        <a href="{% url 'store' %}{{product.category.slug}}/{{product.slug}}" class="title">{{product.product_name}}</a>
+                        <a href="{% url 'store' %}category/{{product.category.slug}}/{{product.slug}}" class="title">{{product.product_name}}</a>
                         <div class="price-wrap mt-2">
                             <span class="price">${{product.price}}</span>
                         </div> <!-- price-wrap.// -->
                     </div>
-                    <a href="#" class="btn btn-block btn-primary">Add to cart </a>	
+                    <a href="{% url 'store' %}category/{{product.category.slug}}/{{product.slug}}" class="btn btn-block  btn-primary"> <span class="text">View Details</span></a>
+                    	
                 </figcaption>
             </figure>
         </div> <!-- col.// -->
         {% endfor %}
+        {% else %}
+            <h2 style="color: red;">Not Found. Please Try Again</h2>
+        {% endif %}
     </div> <!-- row end.// -->
     
     
-    {% comment %} <nav class="mt-4" aria-label="Page navigation sample">
-      <ul class="pagination">
-        <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
-        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-        <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-        <li class="page-item"><a class="page-link" href="#">Next</a></li>
-      </ul>
-    </nav> {% endcomment %}
+    <nav class="mt-4" aria-label="Page navigation sample">
+        {% if allproducts.has_other_pages %}
+            <ul class="pagination">
+                {% if allproducts.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{allproducts.previous_page_number}}">Previous</a></li>
+                {% else %}
+                    <li class="page-item disabled"><a class="page-link" href="">Previous</a></li>
+                {% endif %}
+                {% for i in allproducts.paginator.page_range %}
+                    {% if allproducts.number == i %}
+                        <li class="page-item active"><a class="page-link" href="#">{{i}}</a></li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{i}}">{{i}}</a></li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if allproducts.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{allproducts.next_page_number}}">Next</a></li>
+                {% else %}
+                    <li class="page-item disabled"><a class="page-link" href="">Next</a></li>
+                {% endif %}
+            </ul>
+        {% endif %}
+    </nav>
     
         </main> <!-- col.// -->
     

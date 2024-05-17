@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<section class="section-content padding-y bg">
+    <div class="container">
+    
+    <!-- ============================ COMPONENT 1 ================================= -->
+    {% if not cart_items %}
+    <div style="text-align: center;">
+        <h2 class="text-center" style="color: red;">OOPS! It's Seem Like Your Shopping Cart Is Empty</h2>
+        <br>
+        <div class="text-center">
+            <div style="display: block;">
+                <img src="{% static './images/shopping/shopping-cart-1.png' %}" style="width: 300px; height: 250px; margin-bottom: 10px;" alt="">
+            </div>
+            <div style="display: inline-block;">
+                <a href="{% url 'store' %}" class="btn btn-primary">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
+    <!-- <h2 class="text-center">Your Shopping Cart Is Empty</h2>
+    <br>
+    <div class="text-center">
+        <img src="{% static './images/shopping/shopping-cart-1.jpg' %}" style="width: 200px; height: 150px;" alt="">
+        <a href="{% url 'store' %}" class="btn btn-primary">Continue Shopping</a>
+    </div> -->
+    <!-- <div class="text-center">
+    </div> -->
+    <br>
+
+    {% else %}
+    <div class="row">
+        <aside class="col-lg-9">
+    <div class="card">
+    <table class="table table-borderless table-shopping-cart">
+    <thead class="text-muted">
+    <tr class="small text-uppercase">
+      <th scope="col">Product</th>
+      <th scope="col" width="120" style="text-align: center;">Quantity</th>
+      <th scope="col" width="120">Price</th>
+      <th scope="col" class="text-right" width="200"> </th>
+    </tr>
+    </thead>
+    <tbody>
+
+    
+    {% for cart in cart_items %}
+    <tr>
+        <td>
+            <figure class="itemside align-items-center">
+                <div class="aside"><a href="{% url 'store' %}category/{{cart.product.category.slug}}/{{cart.product.slug}}"><img src="{{ cart.product.image.url }}" class="img-sm"></a></div>
+                <figcaption class="info">
+                    <a href="{% url 'store' %}category/{{cart.product.category.slug}}/{{cart.product.slug}}" style="color: inherit; text-decoration: none;">
+                        <span onmouseover="this.style.color='blue'" onmouseout="this.style.color='inherit'">{{cart.product.product_name}}</span>
+                    </a>
+                    <p class="text-muted small">
+                        {% if cart.variations.all %}
+                            {% for item in cart.variations.all %}
+                                {{item.variation_category | capfirst}} : {{item.variation_value}} <br>
+                            {% endfor %}
+                        {% endif %}
+                    </p>
+                </figcaption>
+            </figure>
+        </td>
+        <td> 
+            <!-- col.// -->
+                        <div class="col"> 
+                            <div class="input-group input-spinner">
+                                <div class="input-group-prepend">
+                                <a href="{% url 'remove_cart' cart.product.id cart.id %}" class="btn btn-light" type="button" id="button-minus"> <i class="fa fa-minus"></i> </a>
+                                </div>
+                                <input type="text" class="form-control"  value="{{cart.quantity}}">
+                                <div class="input-group-append">
+                                <form action="{% url 'add_cart' cart.product.id %}" method="post">
+                                    {% csrf_token %}
+                                    {% for item in cart.variations.all %}
+                                        <input type="hidden" name="{{ item.variation_category | lower }}" value="{{ item.variation_value | capfirst }}">
+                                    {% endfor %}
+                                        <button class="btn btn-light" type="submit" id="button-plus"> <i class="fa fa-plus"></i> </button>
+                                </form>
+                                </div>
+                            </div> <!-- input-group.// -->
+                        </div> <!-- col.// -->
+        </td>
+        <td> 
+            <div class="price-wrap"> 
+                <var class="price">${{cart.subtotal}}</var> 
+                <small class="text-muted"> ${{cart.product.price}} each </small> 
+            </div> <!-- price-wrap .// -->
+        </td>
+        <td class="text-right"> 
+        <a href="{% url 'remove_cart_item' cart.product.id cart.id %}" onclick="return confirm('Do You Want To Delete This Item?')" class="btn btn-danger">Remove</a>
+        </td>
+    </tr>
+    {% endfor %}
+
+    
+    </tbody>
+    </table>
+    </div> <!-- card.// -->
+    
+        </aside> <!-- col.// -->
+        <aside class="col-lg-3">
+    
+            <div class="card">
+            <div class="card-body">
+                <dl class="dlist-align">
+                  <dt>Total price:</dt>
+                  <dd class="text-right">${{TotalPrice}}</dd>
+                </dl>
+                <dl class="dlist-align">
+                  <dt>Tax:</dt>
+                  <dd class="text-right"> ${{tax}}</dd>
+                </dl>
+                <dl class="dlist-align">
+                  <dt>Grand Total:</dt>
+                  <dd class="text-right text-dark b"><strong>${{GrandTotal}}</strong></dd>
+                </dl>
+                <hr>
+                <p class="text-center mb-3">
+                    <img src="{% static './images/misc/payments.png' %}" height="26">
+                </p>
+                <a href="./place-order.html" class="btn btn-primary btn-block"> Checkout </a>
+                <a href="{% url 'store' %}" class="btn btn-light btn-block">Continue Shopping</a>
+            </div> <!-- card-body.// -->
+            </div> <!-- card.// -->
+    
+    </aside> <!-- col.// -->
+    
+    
+    </div> <!-- row.// -->
+    <!-- ============================ COMPONENT 1 END .// ================================= -->
+    {% endif %}
+    </div> <!-- container .//  -->
+    </section>
+    <!-- ========================= SECTION CONTENT END// ========================= -->
+{% endblock %}
